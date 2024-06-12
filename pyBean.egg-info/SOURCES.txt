@@ -2,6 +2,7 @@ README.md
 setup.py
 PyBean/__init__.py
 PyBean/bean.py
+PyBean/by.py
 PyBean/ioc.py
 pyBean.egg-info/PKG-INFO
 pyBean.egg-info/SOURCES.txt
@@ -11,5 +12,7 @@ test/__init__.py
 test/testIoc.py
 test/dao/__init__.py
 test/dao/bookdao.py
+test/dao/paydao.py
 test/imp/__init__.py
 test/imp/bookImp.py
+test/imp/payImp.py

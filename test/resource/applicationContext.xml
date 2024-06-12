@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
-    <bean id="bookDao" name="simple_book_dao"  class="dao.bookdao.Bookdao" />
+    <bean id="bookDao" class="dao.bookdao.Bookdao" />
     <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao"/>
-<!--    <bean id="bookImp2" class="imp.bookImp.BookDaoImp" dao="bookDao"/>-->
+    <bean id="payImp" class="imp.payImp.PayImp">
+        <property name="price" ref="3100"/>
+    </bean>
+
+<!--    <bean id="discount" class="imp.payImp.NoDiscount" dao="bookDao"/>-->
+    <bean id="discount" class="imp.payImp.Discount85" dao="bookDao"/>
 </beans>

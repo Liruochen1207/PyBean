@@ -13,7 +13,16 @@ class Application:
     def refresh(self):
         self.attribList = []
         for child in self.root:
+
             attr = child.attrib
+            ccD = {}
+            for cc in child:
+                if cc.tag not in ccD:
+                    ccD[cc.tag] = [cc.attrib]
+                else:
+                    ccD[cc.tag].append(cc.attrib)
+            # print(ccD)
+            attr['grandChild'] = ccD
             self.attribList.append(attr)
 
     def clear(self):
@@ -30,7 +39,13 @@ class Application:
                     bean.attributes = attr
                     class_name = attr['class']
                     instance = create_instance(class_name)
+
+
+                    if 'property' in attr['grandChild']:
+                        for grandChild in attr['grandChild']['property']:
+                            exec(f"instance.{grandChild['name']}={grandChild['ref']}")
                     bean.instance = instance
+
 
                     if requiredType == Default or type(bean.instance) == requiredType or requiredType in str(bean.instance):
                         return bean
@@ -42,15 +57,12 @@ class Application:
                     if len(ready) == 1:
                         raise SystemError(f'More than one bean {var} is required.')
                     instance = create_instance(attr[var])
-
                     bean.instance = instance
                     ready.append(bean)
             if len(ready) == 0:
                 raise AttributeError(f'No such bean {var} as {arg}')
             else:
                 return ready[0]
-
-
 
         if type(by) == str:
             arg = by

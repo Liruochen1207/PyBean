@@ -5,6 +5,8 @@ class Bean:
         self.instance = None
         self.attributes = {}
 
+    def attribute(self, attrName):
+        return self.attributes[attrName]
 
 
 

@@ -11,11 +11,18 @@ if __name__ == '__main__':
     # print(ioc.getBean(requiredType='imp.bookImp.BookDaoImp'))
 
 
-    className = bookDao.attribute("class")
-    getDao: bean = ioc.getBean(requiredType=className)
+    getDao: bean = ioc.getBean(arg=bookImp.attribute('dao'))
     print(getDao.instance == bookImp.instance)
     print(type(getDao.instance) == type(bookImp.instance))
 
     bookDao.instance.show()
     bookImp.instance.show()
     getDao.instance.show()
+
+    discountBean: bean = ioc.getBean('discount')
+    discount = discountBean.instance.discount()
+    priceBean: bean = ioc.getBean('payImp')
+    price = priceBean.instance.price
+    print(price)
+
+    print("折后价格", discount * price)
