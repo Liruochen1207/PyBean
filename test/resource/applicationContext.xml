@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
-    <bean id="bookDao" class="dao.bookdao.Bookdao" />
+    <bean id="bookDao" name="simple_book_dao"  class="dao.bookdao.Bookdao" />
     <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao"/>
+<!--    <bean id="bookImp2" class="imp.bookImp.BookDaoImp" dao="bookDao"/>-->
 </beans>
