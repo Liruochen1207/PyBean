@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <bean id="bookDao" class="dao.bookdao.Bookdao" />
+    <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao"/>
+</beans>
