@@ -1,9 +1,12 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r",encoding="UTF-8") as fh:
+    long_description = fh.read()
+
 setup(
-    name='PyIoc',
-    version='0.0.1',
-    author='Archer Lee',
+    name='pyBean',
+    version='0.0.2',
+    author='Archer_Lee.chen',
     author_email='liruochen01@outlook.com',
     packages=find_packages(),
     install_requires=[  # 依赖列表
@@ -14,9 +17,14 @@ setup(
         # 'bin/script1',
         # 'bin/script2',
     ],
-    url='http://pypi.python.org/pypi/PyIoc/',
+    url='',
     license='LICENSE.txt',
     description='An example Python IOC looks like Spring',
-    long_description=open('README.txt').read(),
-    long_description_content_type='text/x-textile',
+    long_description=long_description,
+    # long_description_content_type='text/x-textile',
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )

@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: pyBean
+Version: 0.0.2
+Summary: An example Python IOC looks like Spring
+Home-page: 
+Author: Archer_Lee.chen
+Author-email: liruochen01@outlook.com
+License: LICENSE.txt
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+
+## This is a python ioc module.
+
+# My website: https://space.bilibili.com/178065252
+# My repository: https://github.com/Liruochen1207

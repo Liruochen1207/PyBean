@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 
-from ioc.bean import Bean, create_instance
+from PyBean.bean import Bean, create_instance
 
 
-class PyIoc:
+class Application:
     def __init__(self, applicationContextPath: str):
         self.tree = ET.parse(applicationContextPath)
         self.root = self.tree.getroot()
