@@ -115,7 +115,7 @@ class ApplicationContext:
         self.root = self.tree.getroot()
         self.pointer: ET.Element = self.root
         self.depth = -1
-        self.__scanDiction: Dict[int, ElementLoader] = self.__scan()
+        self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
 
     def pointerLength(self) -> int:
         return self.pointer.__len__()
@@ -129,14 +129,14 @@ class ApplicationContext:
             li.append(self.pointer[index])
         return li
 
-    def __scan(self) -> Dict[int, ElementLoader]:
+    def __scan(self) -> Dict[int, List[ElementLoader]]:
         layer = {}
         rootElementLoader = ElementLoader(self.pointer)
         self.__innerScan(layer, rootElementLoader)
         self.depth = -1
         return layer
 
-    def __innerScan(self, layer: Dict[int, ElementLoader], previousElementLoader: ElementLoader):
+    def __innerScan(self, layer: Dict[int, List[ElementLoader]], previousElementLoader: ElementLoader):
         if self.pointerHasChildren():
             self.depth += 1
             for child in self.getPointerChildren():
@@ -151,7 +151,7 @@ class ApplicationContext:
                 self.__innerScan(layer, childElementLoader)
             self.depth -= 1
 
-    def getScanDiction(self) -> Dict[int, ElementLoader]:
+    def getScanDiction(self) -> Dict[int, List[ElementLoader]]:
         return self.__scanDiction
 
     def getBeanLoaderList(self) -> List[ElementLoader]:
