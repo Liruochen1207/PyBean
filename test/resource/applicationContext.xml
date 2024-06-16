@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans>
+<beans resource="https://pypi.org/project/pyBean/">
 
     <bean id="bookDao" class="dao.bookdao.Bookdao">
-        <constructor-arg ref="《西游记》"/>
+        <constructor-arg value="《样本书》"/>
     </bean>
     <bean id="payImp" class="imp.payImp.PayImp">
-        <property name="price" ref="1500"/>
-        <property name="discount" ref="0.77"/>
+        <constructor-arg value="0.8"/>
+        <constructor-arg value="200"/>
     </bean>
-    <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao" />
+    <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao" >
+        <constructor-arg value="《西游记》"/>
+        <property name="brotherImp" ref="bookImp2"/>
+    </bean>
+    <bean id="bookImp2" class="imp.bookImp.BookDaoImp" dao="bookDao" >
+        <constructor-arg value="《三国演义》"/>
+
+    </bean>
 
 
 

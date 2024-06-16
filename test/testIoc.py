@@ -1,8 +1,13 @@
 from PyBean import bean
-from PyBean.ioc import Application, ElementLoader
+from PyBean.ioc import ApplicationContext, ElementLoader
 
 if __name__ == '__main__':
-    ioc = Application('resource/applicationContext.xml')
-    elementLoader: ElementLoader = ioc.getScanDiction()[1]
-    print(elementLoader)
-    print(ioc.getBean())
+    actx = ApplicationContext('resource/applicationContext.xml')
+    elementLoader: ElementLoader = actx.getScanDiction()[1]
+    # print(elementLoader)
+    print(actx.getBean("payImp").discount)
+    print(actx.getBean("payImp").price)
+    print(actx.getBean("bookImp"))
+    print(actx.getBean("bookImp").brotherImp)
+    print(actx.getBean("bookImp").bookName)
+    print(actx.getBean("bookImp").brotherImp.bookName)

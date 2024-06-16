@@ -1,25 +1,10 @@
 import xml.etree.ElementTree as ET
 from typing import Dict, List
 
-from PyBean.bean import Bean
+from PyBean.bean import Bean, Property
 from PyBean.by import *
 
 
-def create_instance(class_name, *args):
-    parts = class_name.split('.')
-    module_name = '.'.join(parts[:-1])
-    class_name = parts[-1]
-
-    try:
-        module = __import__(module_name, fromlist=[class_name])
-        clazz = getattr(module, class_name)
-        return clazz(*args)
-    except ImportError as e:
-        raise ImportError(f"Unable to import {module_name}: {e}")
-    except AttributeError:
-        raise AttributeError(f"Class {class_name} not found in {module_name}")
-    except ValueError as e:
-        print(e)
 
 
 def boolAttr(inp: str):
@@ -107,14 +92,24 @@ class ElementLoader:
         self.parent = None
         self.children = []
 
-    def setParent(self, parent: ET.Element):
+    def setParent(self, parent):  # parent is a ElementLoader
         self.parent = parent
 
-    def addChild(self, child: ET.Element):
+    def addChild(self, child):  # child is a ElementLoader
         self.children.append(child)
 
 
-class Application:
+def getAttributeFromElement(element: ET.Element, name: str):
+    attribute = element.attrib
+    if name in attribute:
+        return attribute[name]
+    return None
+
+
+
+
+
+class ApplicationContext:
     def __init__(self, applicationContextPath: str):
         self.tree = ET.parse(applicationContextPath)
         self.root = self.tree.getroot()
@@ -156,12 +151,10 @@ class Application:
                 self.__innerScan(layer, childElementLoader)
             self.depth -= 1
 
-
     def getScanDiction(self) -> Dict[int, ElementLoader]:
         return self.__scanDiction
 
-
-    def getBeanLoaderList(self) -> List[Bean]:
+    def getBeanLoaderList(self) -> List[ElementLoader]:
         li = []
         if 0 in self.getScanDiction():
             for elementLoader in self.getScanDiction()[0]:
@@ -169,11 +162,57 @@ class Application:
                     li.append(elementLoader)
         return li
 
+    def buildBean(self, loader: ElementLoader):
+        bean = Bean()
 
-    def getBean(self) -> object:
-        loader: ElementLoader = self.getBeanLoaderList()[0]
+        id = None
+        name = None
+        className = None
+
+        element: ET.Element = loader.element
+        bean.attrib = element.attrib
+        id = getAttributeFromElement(element, 'id')
+        name = getAttributeFromElement(element, 'name')
+        className = getAttributeFromElement(element, 'class')
+
         childrenLoaders = loader.children
+        args = []
+        for childLoader in childrenLoaders:
+            childElement: ET.Element = childLoader.element
+            if childElement.tag == "constructor-arg":
+                args.append(childElement.attrib['value'])
+            if childElement.tag == "property":
+                pn = getAttributeFromElement(childElement, 'name')
+                pf = getAttributeFromElement(childElement, 'ref')
+                pv = getAttributeFromElement(childElement, 'value')
+                prop = Property(
+                    name=pn,
+                    ref=pf,
+                    value=pv,
+                )
+                bean.add_property(prop)
 
-        element = loader.element
-        print(element.attrib)
-        return create_instance(element.attrib['class'], "hi")
+        try:
+            bean.create(className, *args, application=self)
+        except TypeError as e:
+            se = str(e)
+            if "missing" in se and "required positional arguments" in se:
+                msg = se + "\n Maybe you forgot to use <constructor-arg/> ."
+                raise TypeError(msg)
+
+        return bean
+
+    def getBean(self, arg) -> object:
+        li = []
+        beanELoader = None
+        for beanELoader in self.getBeanLoaderList():
+            if arg in beanELoader.element.attrib.values():
+                li.append(self.buildBean(beanELoader))
+        if len(li) > 1:
+            for bean in li:
+                if bean.attrib['id'] == arg:
+                    return bean.instance
+            raise KeyError("Too many results -> " + str(li))
+        elif len(li) == 0:
+            raise KeyError("Result not found")
+        return li[0].instance
