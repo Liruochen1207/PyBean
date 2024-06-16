@@ -2,3 +2,7 @@
 
 PyIoc.egg-info
 dist
+/upload.bat
+/build/
+/build/bdist.win-amd64
+/build/lib
