@@ -1,6 +1,3 @@
 class Paydao:
-    def price(self):
-        pass
-
-    def discount(self):
-        pass
+    price = None
+    discount = None
