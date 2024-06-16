@@ -1,6 +1,7 @@
 # created by virtualenv automatically
 
-PyIoc.egg-info
+
+PyBean.egg-info
 dist
 /upload.bat
 /build/
