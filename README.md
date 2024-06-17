@@ -4,8 +4,6 @@
 # pyBean
 </div>
 
-
-<br></br>
 <br></br>
 ## 1. What is this?
 This is a Python module implementation of IOC container management.
