@@ -1,6 +1,5 @@
 from typing import List
 
-from PyBean import bean
 from PyBean.ioc import ApplicationContext, ElementLoader
 from test.imp.bookImp import *
 

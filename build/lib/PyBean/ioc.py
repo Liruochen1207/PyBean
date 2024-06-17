@@ -111,11 +111,14 @@ def getAttributeFromElement(element: ET.Element, name: str):
 
 class ApplicationContext:
     def __init__(self, applicationContextPath: str):
-        self.tree = ET.parse(applicationContextPath)
-        self.root = self.tree.getroot()
-        self.pointer: ET.Element = self.root
-        self.depth = -1
-        self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
+        self.tree = None
+        self.root = None
+        self.pointer = None
+        self.depth = None
+        self.__scanDiction = None
+        self.path = applicationContextPath
+
+        self.refresh()  # Init
 
     def pointerLength(self) -> int:
         return self.pointer.__len__()
@@ -128,7 +131,14 @@ class ApplicationContext:
         for index in range(self.pointerLength()):
             li.append(self.pointer[index])
         return li
-
+    
+    def refresh(self):
+        self.tree = ET.parse(self.path)
+        self.root = self.tree.getroot()
+        self.pointer: ET.Element = self.root
+        self.depth = -1
+        self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
+    
     def __scan(self) -> Dict[int, List[ElementLoader]]:
         layer = {}
         rootElementLoader = ElementLoader(self.pointer)
@@ -214,6 +224,7 @@ class ApplicationContext:
         return bean
 
     def getBean(self, arg) -> object:
+        self.refresh()
         li = []
         beanELoader = None
         for beanELoader in self.getBeanLoaderList():
