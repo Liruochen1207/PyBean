@@ -180,7 +180,16 @@ class ApplicationContext:
         for childLoader in childrenLoaders:
             childElement: ET.Element = childLoader.element
             if childElement.tag == "constructor-arg":
-                args.append(childElement.attrib['value'])
+                value = childElement.attrib['value']
+                if value.isdigit():
+                    value = int(value)
+                elif "." in value:
+                    try:
+                        value = float(value.strip())
+                    except ValueError as e:
+                        pass
+
+                args.append(value)
             if childElement.tag == "property":
                 pn = getAttributeFromElement(childElement, 'name')
                 pf = getAttributeFromElement(childElement, 'ref')
@@ -195,10 +204,12 @@ class ApplicationContext:
         try:
             bean.create(className, *args, application=self)
         except TypeError as e:
+            # print(e)
             se = str(e)
-            if "missing" in se and "required positional arguments" in se:
-                msg = se + "\n Maybe you forgot to use <constructor-arg/> ."
+            if "missing" in se and "required" in se:
+                msg = se + f"\n Maybe you forgot to use <constructor-arg/> or delete this argument from {className}."
                 raise TypeError(msg)
+            raise e
 
         return bean
 
@@ -215,4 +226,5 @@ class ApplicationContext:
             raise KeyError("Too many results -> " + str(li))
         elif len(li) == 0:
             raise KeyError("Result not found")
+
         return li[0].instance
