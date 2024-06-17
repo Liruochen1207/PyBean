@@ -104,9 +104,3 @@ python3 main.py
 #### website: https://space.bilibili.com/178065252
 #### pypi: https://pypi.org/project/pyBean/
 #### repository: https://github.com/Liruochen1207/PyBean
-
-
-
-<style>
-    .moduleTitle {scale: 4}
-</style>
