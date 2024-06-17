@@ -5,13 +5,18 @@
     <bean id="bookDao" class="dao.bookdao.Bookdao">
         <constructor-arg value="《样本书》"/>
     </bean>
-    <bean id="payImp" class="imp.payImp.PayImp">
-        <constructor-arg value="0.8"/>
-        <constructor-arg value="200"/>
+    <bean id="payImp88" class="imp.payImp.PayImp">
+        <constructor-arg value="0.88"/>
+    </bean>
+    <bean id="payImp85" class="imp.payImp.PayImp">
+        <constructor-arg value="0.85"/>
     </bean>
     <bean id="bookImp" class="imp.bookImp.BookDaoImp" dao="bookDao" >
         <constructor-arg value="《西游记》"/>
         <property name="brotherImp" ref="bookImp2"/>
+        <property name="price" value="70"/>
+        <property name="discount" value="0.95"/>
+
     </bean>
     <bean id="bookImp2" class="imp.bookImp.BookDaoImp" dao="bookDao" >
         <constructor-arg value="《三国演义》"/>

@@ -4,9 +4,9 @@ from PyBean.instance import create_instance
 
 class Property:
     def __init__(self, name, ref, value):
-        self.name = name
-        self.ref = ref
-        self.value = value
+        self.name: str = name
+        self.ref: str = ref
+        self.value: object = value
 
 
 class Bean:
@@ -18,6 +18,9 @@ class Bean:
     def add_property(self, prop: Property):
         self.__properties.append(prop)
 
+    def get_properties(self) -> List[Property]:
+        return self.__properties
+
     def create(self, class_name, *args, application):
         self.instance = create_instance(class_name, *args)
         for prop in self.__properties:
@@ -25,6 +28,7 @@ class Bean:
                 exec(f"self.instance.{prop.name} = {prop.value}")
             if prop.ref is not None:
                 instance = application.getBean(prop.ref)
+                prop.value = instance
                 exec(f"self.instance.{prop.name} = instance")
 
 

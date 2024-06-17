@@ -3,6 +3,7 @@ setup.py
 PyBean/__init__.py
 PyBean/bean.py
 PyBean/by.py
+PyBean/instance.py
 PyBean/ioc.py
 pyBean.egg-info/PKG-INFO
 pyBean.egg-info/SOURCES.txt

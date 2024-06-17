@@ -111,11 +111,14 @@ def getAttributeFromElement(element: ET.Element, name: str):
 
 class ApplicationContext:
     def __init__(self, applicationContextPath: str):
-        self.tree = ET.parse(applicationContextPath)
-        self.root = self.tree.getroot()
-        self.pointer: ET.Element = self.root
-        self.depth = -1
-        self.__scanDiction: Dict[int, ElementLoader] = self.__scan()
+        self.tree = None
+        self.root = None
+        self.pointer = None
+        self.depth = None
+        self.__scanDiction = None
+        self.path = applicationContextPath
+
+        self.refresh()  # Init
 
     def pointerLength(self) -> int:
         return self.pointer.__len__()
@@ -128,15 +131,22 @@ class ApplicationContext:
         for index in range(self.pointerLength()):
             li.append(self.pointer[index])
         return li
-
-    def __scan(self) -> Dict[int, ElementLoader]:
+    
+    def refresh(self):
+        self.tree = ET.parse(self.path)
+        self.root = self.tree.getroot()
+        self.pointer: ET.Element = self.root
+        self.depth = -1
+        self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
+    
+    def __scan(self) -> Dict[int, List[ElementLoader]]:
         layer = {}
         rootElementLoader = ElementLoader(self.pointer)
         self.__innerScan(layer, rootElementLoader)
         self.depth = -1
         return layer
 
-    def __innerScan(self, layer: Dict[int, ElementLoader], previousElementLoader: ElementLoader):
+    def __innerScan(self, layer: Dict[int, List[ElementLoader]], previousElementLoader: ElementLoader):
         if self.pointerHasChildren():
             self.depth += 1
             for child in self.getPointerChildren():
@@ -151,7 +161,7 @@ class ApplicationContext:
                 self.__innerScan(layer, childElementLoader)
             self.depth -= 1
 
-    def getScanDiction(self) -> Dict[int, ElementLoader]:
+    def getScanDiction(self) -> Dict[int, List[ElementLoader]]:
         return self.__scanDiction
 
     def getBeanLoaderList(self) -> List[ElementLoader]:
@@ -180,7 +190,16 @@ class ApplicationContext:
         for childLoader in childrenLoaders:
             childElement: ET.Element = childLoader.element
             if childElement.tag == "constructor-arg":
-                args.append(childElement.attrib['value'])
+                value = childElement.attrib['value']
+                if value.isdigit():
+                    value = int(value)
+                elif "." in value:
+                    try:
+                        value = float(value.strip())
+                    except ValueError as e:
+                        pass
+
+                args.append(value)
             if childElement.tag == "property":
                 pn = getAttributeFromElement(childElement, 'name')
                 pf = getAttributeFromElement(childElement, 'ref')
@@ -195,14 +214,17 @@ class ApplicationContext:
         try:
             bean.create(className, *args, application=self)
         except TypeError as e:
+            # print(e)
             se = str(e)
-            if "missing" in se and "required positional arguments" in se:
-                msg = se + "\n Maybe you forgot to use <constructor-arg/> ."
+            if "missing" in se and "required" in se:
+                msg = se + f"\n Maybe you forgot to use <constructor-arg/> or delete this argument from {className}."
                 raise TypeError(msg)
+            raise e
 
         return bean
 
     def getBean(self, arg) -> object:
+        self.refresh()
         li = []
         beanELoader = None
         for beanELoader in self.getBeanLoaderList():
@@ -215,4 +237,5 @@ class ApplicationContext:
             raise KeyError("Too many results -> " + str(li))
         elif len(li) == 0:
             raise KeyError("Result not found")
+
         return li[0].instance
