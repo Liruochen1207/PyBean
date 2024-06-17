@@ -1,7 +1,7 @@
 
 <div class="moduleTitle" align="center">
 
-# pyBean
+# PyBean
 </div>
 
 <br></br>
