@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r",encoding="UTF-8") as fh:
+with open("README.md", "r", encoding="UTF-8") as fh:
     long_description = fh.read()
 
 setup(
     name='pyBean',
-    version='0.0.22',
+    version='0.0.23',
     author='Archer_Lee.chen',
     author_email='liruochen01@outlook.com',
     packages=find_packages(),
