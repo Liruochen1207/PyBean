@@ -2,6 +2,7 @@ from typing import List
 
 from PyBean.instance import create_instance
 
+
 class Property:
     def __init__(self, name, ref, value):
         self.name: str = name
@@ -25,11 +26,21 @@ class Bean:
         self.instance = create_instance(class_name, *args)
         for prop in self.__properties:
             if prop.value is not None:
-                exec(f"self.instance.{prop.name} = {prop.value}")
+                value = prop.value
+                value_translate(value)
+                exec(f"self.instance.{prop.name} = value")
             if prop.ref is not None:
                 instance = application.getBean(prop.ref)
                 prop.value = instance
                 exec(f"self.instance.{prop.name} = instance")
 
 
-
+def value_translate(value):
+    if value.isdigit():
+        value = int(value)
+    elif "." in value:
+        try:
+            value = float(value.strip())
+        except ValueError as e:
+            pass
+    return value

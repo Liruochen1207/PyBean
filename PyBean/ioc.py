@@ -1,7 +1,8 @@
+import argparse
 import xml.etree.ElementTree as ET
 from typing import Dict, List
 
-from PyBean.bean import Bean, Property
+from PyBean.bean import Bean, Property, value_translate
 from PyBean.by import *
 
 
@@ -106,19 +107,51 @@ def getAttributeFromElement(element: ET.Element, name: str):
     return None
 
 
+class ApplicationMode:
+    release = 0
+    default = 1
+    development = 2
+    debug = 3
+    test = 4
+
+    def parse_mode(self, inp: str):
+        if inp.lower() == 'release':
+            return self.release
+        if inp.lower() == 'default':
+            return self.default
+        if inp.lower() in ('dev', 'development'):
+            return self.development
+        if inp.lower() == 'debug':
+            return self.debug
+        if inp.lower() == 'test':
+            return self.test
 
 
 
 class ApplicationContext:
-    def __init__(self, applicationContextPath: str):
+    def __init__(self, applicationContextPath: str, applicationMode=ApplicationMode.default):
+        parser = argparse.ArgumentParser(description='示例程序参数解析')
+        parser.add_argument('--runMode', help='The mode of pybean', type=str, default="default")
+        args = parser.parse_args()
+
         self.tree = None
         self.root = None
         self.pointer = None
         self.depth = None
         self.__scanDiction = None
-        self.path = applicationContextPath
 
+        self.__mode = ApplicationMode().parse_mode(args.runMode)
+        if applicationMode != self.__mode:
+            self.__mode = applicationMode
+
+        self.path = applicationContextPath
+        self.reloadFromfile()
         self.refresh()  # Init
+
+    def debug_print(self, *args, **kwargs):
+        if self.__mode in (ApplicationMode.debug, ApplicationMode.test, ApplicationMode.development):
+            print("Debug-Print -> ", end='')
+            print(*args, **kwargs)
 
     def pointerLength(self) -> int:
         return self.pointer.__len__()
@@ -131,12 +164,16 @@ class ApplicationContext:
         for index in range(self.pointerLength()):
             li.append(self.pointer[index])
         return li
-    
-    def refresh(self):
+
+    def reloadFromfile(self):
+        self.debug_print('reloadFromfile')
         self.tree = ET.parse(self.path)
         self.root = self.tree.getroot()
         self.pointer: ET.Element = self.root
         self.depth = -1
+
+    def refresh(self):
+        self.debug_print('refresh')
         self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
     
     def __scan(self) -> Dict[int, List[ElementLoader]]:
@@ -190,16 +227,16 @@ class ApplicationContext:
         for childLoader in childrenLoaders:
             childElement: ET.Element = childLoader.element
             if childElement.tag == "constructor-arg":
-                value = childElement.attrib['value']
-                if value.isdigit():
-                    value = int(value)
-                elif "." in value:
-                    try:
-                        value = float(value.strip())
-                    except ValueError as e:
-                        pass
+                if "value" in childElement.attrib:
+                    value = childElement.attrib['value']
+                    value_translate(value)
+                    args.append(value)
 
-                args.append(value)
+                elif "ref" in childElement.attrib:
+                    ref = childElement.attrib['ref']
+                    value = self.getBean(ref)
+                    args.append(value)
+
             if childElement.tag == "property":
                 pn = getAttributeFromElement(childElement, 'name')
                 pf = getAttributeFromElement(childElement, 'ref')
@@ -224,7 +261,9 @@ class ApplicationContext:
         return bean
 
     def getBean(self, arg) -> object:
-        self.refresh()
+        if self.__mode == ApplicationMode.development:
+            self.reloadFromfile()
+            self.refresh()
         li = []
         beanELoader = None
         for beanELoader in self.getBeanLoaderList():
