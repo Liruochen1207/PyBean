@@ -1,10 +1,9 @@
 
-<div class="moduleTitle" align="center">
 
 # PyBean
-</div>
 
-<br></br>
+
+
 ## 1. What is this?
 This is a Python module implementation of IOC container management.
 
@@ -92,15 +91,12 @@ or
 ```shell
 python3 main.py
 ```
-<br>
+
 > Hey Lee! China is a good place!
 
 
 
-<br></br>
-<br></br>
-<br></br>
-<br></br>
+
 #### website: https://space.bilibili.com/178065252
 #### pypi: https://pypi.org/project/pyBean/
 #### repository: https://github.com/Liruochen1207/PyBean

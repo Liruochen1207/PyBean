@@ -1,4 +1,5 @@
 import argparse
+import os
 import xml.etree.ElementTree as ET
 from typing import Dict, List
 
@@ -134,11 +135,15 @@ class ApplicationContext:
         parser.add_argument('--runMode', help='The mode of pybean', type=str, default="default")
         args = parser.parse_args()
 
+        applicationContextPath = os.path.abspath(applicationContextPath)
+        self.dirPath = os.path.dirname(applicationContextPath)
+
         self.tree = None
         self.root = None
         self.pointer = None
         self.depth = None
         self.__scanDiction = None
+        self.childApplications = []
 
         self.__mode = ApplicationMode().parse_mode(args.runMode)
         if applicationMode != self.__mode:
@@ -147,6 +152,7 @@ class ApplicationContext:
         self.path = applicationContextPath
         self.reloadFromfile()
         self.refresh()  # Init
+        self.__doImportLoadList()
 
     def debug_print(self, *args, **kwargs):
         if self.__mode in (ApplicationMode.debug, ApplicationMode.test, ApplicationMode.development):
@@ -201,12 +207,33 @@ class ApplicationContext:
     def getScanDiction(self) -> Dict[int, List[ElementLoader]]:
         return self.__scanDiction
 
+    def __getLoaderList(self, depth: int, tagName: str) -> List[ElementLoader]:
+        li = []
+        if depth in self.getScanDiction():
+            for elementLoader in self.getScanDiction()[depth]:
+                if elementLoader.element.tag == tagName:
+                    li.append(elementLoader)
+        return li
+
+    def getImportLoadList(self) -> List[ElementLoader]:
+        return self.__getLoaderList(depth=0, tagName='import')
+
+    def __doImportLoadList(self):
+        for loader in self.getImportLoadList():
+            element = loader.element
+
+            resource = getAttributeFromElement(element, 'resource')
+            readyPath = self.dirPath+"\\"+resource
+            if not os.path.exists(readyPath):
+                readyPath = resource
+            childApplication = ApplicationContext(applicationContextPath=readyPath, applicationMode=self.__mode)
+            self.childApplications.append(childApplication)
+
     def getBeanLoaderList(self) -> List[ElementLoader]:
         li = []
-        if 0 in self.getScanDiction():
-            for elementLoader in self.getScanDiction()[0]:
-                if elementLoader.element.tag == "bean":
-                    li.append(elementLoader)
+        for childApplication in self.childApplications:
+            li.extend(childApplication.getBeanLoaderList())
+        li.extend(self.__getLoaderList(depth=0, tagName="bean"))
         return li
 
     def buildBean(self, loader: ElementLoader):
@@ -275,6 +302,5 @@ class ApplicationContext:
                     return bean.instance
             raise KeyError("Too many results -> " + str(li))
         elif len(li) == 0:
-            raise KeyError("Result not found")
-
+            raise KeyError(f"Result '{arg}' not found")
         return li[0].instance

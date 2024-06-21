@@ -17,7 +17,7 @@ setup(
         # 'bin/script1',
         # 'bin/script2',
     ],
-    url='',
+    url='https://pypi.org/project/pyBean/',
     license='LICENSE.txt',
     description='An example Python IOC looks like Spring',
     long_description=long_description,

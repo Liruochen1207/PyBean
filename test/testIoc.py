@@ -5,11 +5,6 @@ from test.imp.bookImp import *
 
 if __name__ == '__main__':
     actx = ApplicationContext('resource/applicationContext.xml')
-    elementLoaderList: List[ElementLoader] = actx.getScanDiction()[0]
-    for elementLoader in elementLoaderList:
-        bean = actx.buildBean(elementLoader)
-        for prop in bean.get_properties():
-            print(prop.name, prop.value)
 
     print(actx.getBean("payImp85").discount)
     print(type(actx.getBean("payImp85").discount))
@@ -21,3 +16,5 @@ if __name__ == '__main__':
     print(actx.getBean("bookImp").brotherImp)
     print(actx.getBean("bookImp2"))
 
+    print("-" * 50)
+    print(actx.getBeanLoaderList()[0].element.attrib)
