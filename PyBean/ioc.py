@@ -116,6 +116,8 @@ class ApplicationMode:
     test = 4
 
     def parse_mode(self, inp: str):
+        if inp.isdigit():
+            return int(inp)
         if inp.lower() == 'release':
             return self.release
         if inp.lower() == 'default':
@@ -146,7 +148,7 @@ class ApplicationContext:
         self.childApplications = []
 
         self.__mode = ApplicationMode().parse_mode(args.runMode)
-        if applicationMode != self.__mode:
+        if applicationMode != ApplicationMode.default:
             self.__mode = applicationMode
 
         self.path = applicationContextPath
@@ -156,7 +158,7 @@ class ApplicationContext:
 
     def debug_print(self, *args, **kwargs):
         if self.__mode in (ApplicationMode.debug, ApplicationMode.test, ApplicationMode.development):
-            print("Debug-Print -> ", end='')
+            print(self.path.split('\\')[-1] + " -> ", end='')
             print(*args, **kwargs)
 
     def pointerLength(self) -> int:
