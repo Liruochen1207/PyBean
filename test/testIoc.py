@@ -1,6 +1,6 @@
 from typing import List
 
-from PyBean.ioc import ApplicationContext, ElementLoader
+from PyBean.ioc import ApplicationContext, ApplicationMode, ElementLoader
 from test.imp.bookImp import *
 
 if __name__ == '__main__':

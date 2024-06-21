@@ -21,7 +21,7 @@ setup(
     license='LICENSE.txt',
     description='An example Python IOC looks like Spring',
     long_description=long_description,
-    # long_description_content_type='text/x-textile',
+    long_description_content_type='text/markdown',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
