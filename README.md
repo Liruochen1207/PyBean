@@ -95,7 +95,7 @@ python3 main.py
 > Hey Lee! China is a good place!
 
 
-You can turn on debugging mode to ensure that each getBean operation will re-read the latest content in the XML.
+You can turn on development mode to ensure that each getBean operation will re-read the latest content in the XML.
 ```
 actx = ApplicationContext('resource/applicationContext.xml', 
 applicationMode=ApplicationMode.development)
