@@ -17,7 +17,7 @@
         <property name="discount" value="0.95"/>
 
     </bean>
-    <bean id="bookImp2" class="imp.bookImp.BookDaoImp" >
+    <bean id="bookImp2" class="test.imp.bookImp.BookDaoImp" >
         <constructor-arg value="三国演义"/>
         <property name="dao" ref="bookDao"/>
 

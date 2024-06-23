@@ -1,12 +1,13 @@
 from typing import List
 
 from PyBean.ioc import ApplicationContext, ApplicationMode, ElementLoader
+
 from test.imp.bookImp import *
 
 if __name__ == '__main__':
     actx = ApplicationContext('resource/applicationContext.xml')
 
-    print(actx.getBean("payImp85").discount)
+    print(actx.getBean("bookImp2", BookDaoImp))
     print(type(actx.getBean("payImp85").discount))
     bookDaoImp: Bookdao = actx.getBean("bookImp")
     bookDaoImp2: Bookdao = actx.getBean("bookImp2")

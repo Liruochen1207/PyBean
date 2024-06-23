@@ -1,11 +1,9 @@
 import os
 import xml.etree.ElementTree as ET
-from typing import Dict, List
+from typing import Dict, List, Type
 
 from PyBean.bean import Bean, Property, value_translate
 from PyBean.by import *
-
-
 
 
 def boolAttr(inp: str):
@@ -129,7 +127,6 @@ class ApplicationMode:
             return self.test
 
 
-
 class ApplicationContext:
     def __init__(self, applicationContextPath: str, applicationMode=ApplicationMode.default):
 
@@ -177,7 +174,7 @@ class ApplicationContext:
     def refresh(self):
         self.debug_print('refresh')
         self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
-    
+
     def __scan(self) -> Dict[int, List[ElementLoader]]:
         layer = {}
         rootElementLoader = ElementLoader(self.pointer)
@@ -219,7 +216,7 @@ class ApplicationContext:
             element = loader.element
 
             resource = getAttributeFromElement(element, 'resource')
-            readyPath = self.dirPath+"\\"+resource
+            readyPath = self.dirPath + "\\" + resource
             if not os.path.exists(readyPath):
                 readyPath = resource
             childApplication = ApplicationContext(applicationContextPath=readyPath, applicationMode=self.__mode)
@@ -283,20 +280,36 @@ class ApplicationContext:
 
         return bean
 
-    def getBean(self, arg) -> object:
-        if self.__mode == ApplicationMode.development:
-            self.reloadFromfile()
-            self.refresh()
-        li = []
-        beanELoader = None
-        for beanELoader in self.getBeanLoaderList():
-            if arg in beanELoader.element.attrib.values():
-                li.append(self.buildBean(beanELoader))
-        if len(li) > 1:
-            for bean in li:
-                if bean.attrib['id'] == arg:
-                    return bean.instance
-            raise KeyError("Too many results -> " + str(li))
-        elif len(li) == 0:
-            raise KeyError(f"Result '{arg}' not found")
-        return li[0].instance
+    def getBean(self, id, requiredType: Type = Default) -> object:
+        def inner():
+            if self.__mode == ApplicationMode.development:
+                self.reloadFromfile()
+                self.refresh()
+            li = []
+            beanELoader = None
+            for beanELoader in self.getBeanLoaderList():
+                if id in beanELoader.element.attrib.values():
+                    li.append(self.buildBean(beanELoader))
+            if len(li) > 1:
+                for bean in li:
+                    if bean.attrib['id'] == id:
+                        return bean.instance
+                raise KeyError("Too many results -> " + str(li))
+            elif len(li) == 0:
+                raise KeyError(f"Result '{id}' not found")
+            return li[0].instance
+
+        b = inner()
+        errorInBed = SystemError(f"Object {b.__class__} in {self.path} \n which bean id:'{id}' maybe is not a {requiredType} object")
+        try:
+            if requiredType == Default or b.__class__ == requiredType:
+                return b
+            instanceName = str(b.__class__).split("'")[1]
+            requiredName = str(requiredType).split("'")[1]
+            if (instanceName in requiredName) or (requiredName in instanceName):
+                raise NameError(
+                    f"The class name of bean id:'{id}' \n in {self.path} is not clear enough, did you mean: '{requiredType}'?")
+        except Exception as e:
+            raise errorInBed
+
+        raise errorInBed
