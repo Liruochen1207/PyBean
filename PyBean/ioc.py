@@ -147,6 +147,9 @@ class ApplicationContext:
         self.refresh()  # Init
         self.__doImportLoadList()
 
+    def set__mode(self, mode: ApplicationMode):
+        self.__mode = mode
+
     def debug_print(self, *args, **kwargs):
         if self.__mode in (ApplicationMode.debug, ApplicationMode.test, ApplicationMode.development):
             print(self.path.split('\\')[-1] + " -> ", end='')

@@ -100,6 +100,10 @@ You can turn on development mode to ensure that each getBean operation will re-r
 actx = ApplicationContext('resource/applicationContext.xml', 
 applicationMode=ApplicationMode.development)
 ```
+or
+```
+actx.set__mode(ApplicationMode.development)
+```
 
 You can add a second type parameter to getBean to constrain the obtained object to belong to that type. Of course, make sure that the type name in your XML is an absolute class path.
 ```

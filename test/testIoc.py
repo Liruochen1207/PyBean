@@ -6,8 +6,8 @@ from test.imp.bookImp import *
 
 def main():
     actx = ApplicationContext('resource/applicationContext.xml',
-                              applicationMode=ApplicationMode.development)
-
+                              applicationMode=ApplicationMode.default)
+    # actx.set__mode(ApplicationMode.development)
     print(actx.getBean("bookImp2", requiredType=BookDaoImp))
     print(type(actx.getBean("payImp85").discount))
     bookDaoImp: Bookdao = actx.getBean("bookImp")
