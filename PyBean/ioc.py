@@ -1,4 +1,3 @@
-import argparse
 import os
 import xml.etree.ElementTree as ET
 from typing import Dict, List
@@ -133,9 +132,6 @@ class ApplicationMode:
 
 class ApplicationContext:
     def __init__(self, applicationContextPath: str, applicationMode=ApplicationMode.default):
-        parser = argparse.ArgumentParser(description='示例程序参数解析')
-        parser.add_argument('--runMode', help='The mode of pybean', type=str, default="default")
-        args = parser.parse_args()
 
         applicationContextPath = os.path.abspath(applicationContextPath)
         self.dirPath = os.path.dirname(applicationContextPath)
@@ -147,9 +143,7 @@ class ApplicationContext:
         self.__scanDiction = None
         self.childApplications = []
 
-        self.__mode = ApplicationMode().parse_mode(args.runMode)
-        if applicationMode != ApplicationMode.default:
-            self.__mode = applicationMode
+        self.__mode = applicationMode
 
         self.path = applicationContextPath
         self.reloadFromfile()

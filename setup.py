@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="UTF-8") as fh:
 
 setup(
     name='pyBean',
-    version='0.0.23',
+    version='0.0.24',
     author='Archer_Lee.chen',
     author_email='liruochen01@outlook.com',
     packages=find_packages(),
