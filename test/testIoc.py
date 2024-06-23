@@ -4,10 +4,11 @@ from PyBean.ioc import ApplicationContext, ApplicationMode, ElementLoader
 
 from test.imp.bookImp import *
 
-if __name__ == '__main__':
-    actx = ApplicationContext('resource/applicationContext.xml')
+def main():
+    actx = ApplicationContext('resource/applicationContext.xml',
+                              applicationMode=ApplicationMode.development)
 
-    print(actx.getBean("bookImp2", BookDaoImp))
+    print(actx.getBean("bookImp2", requiredType=BookDaoImp))
     print(type(actx.getBean("payImp85").discount))
     bookDaoImp: Bookdao = actx.getBean("bookImp")
     bookDaoImp2: Bookdao = actx.getBean("bookImp2")
@@ -19,3 +20,6 @@ if __name__ == '__main__':
 
     print("-" * 50)
     print(actx.getBeanLoaderList()[0].element.attrib)
+
+if __name__ == '__main__':
+    main()

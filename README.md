@@ -73,7 +73,7 @@ In your python file:
 ```
 # main.py
 
-from PyBean.ioc import ApplicationContext
+from PyBean.ioc import ApplicationContext, ApplicationMode
 
 
 if __name__ == '__main__':
@@ -95,7 +95,17 @@ python3 main.py
 > Hey Lee! China is a good place!
 
 
+You can turn on debugging mode to ensure that each getBean operation will re-read the latest content in the XML.
+```
+actx = ApplicationContext('resource/applicationContext.xml', 
+applicationMode=ApplicationMode.development)
+```
 
+You can add a second type parameter to getBean to constrain the obtained object to belong to that type. Of course, make sure that the type name in your XML is an absolute class path.
+```
+from dao.person import PersonDao
+personGet = actx.getBean("me", requiredType=PersonDao)
+```
 
 #### website: https://space.bilibili.com/178065252
 #### pypi: https://pypi.org/project/pyBean/

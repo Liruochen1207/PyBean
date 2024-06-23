@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans resource="https://pypi.org/project/pyBean/">
-    <bean id="bookDao" class="dao.bookdao.Bookdao">
+    <bean id="bookDao" class="test.dao.bookdao.Bookdao">
         <constructor-arg value="样本书"/>
     </bean>
 

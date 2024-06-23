@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans resource="https://pypi.org/project/pyBean/">
-    <import resource="resource/daos.xml"/>
+    <import resource="daos.xml"/>
 
-    <bean id="payImp88" class="imp.payImp.PayImp">
+    <bean id="payImp88" class="test.imp.payImp.PayImp">
         <constructor-arg value="0.88"/>
     </bean>
-    <bean id="payImp85" class="imp.payImp.PayImp">
+    <bean id="payImp85" class="test.imp.payImp.PayImp">
         <constructor-arg value="0.85"/>
     </bean>
-    <bean id="bookImp" class="imp.bookImp.BookDaoImp" >
+    <bean id="bookImp" class="test.imp.bookImp.BookDaoImp" >
         <constructor-arg value="西游记"/>
         <property name="dao" ref="bookDao"/>
         <property name="brotherImp" ref="bookImp2"/>
