@@ -1,11 +1,9 @@
-import argparse
+import os
 import xml.etree.ElementTree as ET
-from typing import Dict, List
+from typing import Dict, List, Type
 
 from PyBean.bean import Bean, Property, value_translate
 from PyBean.by import *
-
-
 
 
 def boolAttr(inp: str):
@@ -115,6 +113,8 @@ class ApplicationMode:
     test = 4
 
     def parse_mode(self, inp: str):
+        if inp.isdigit():
+            return int(inp)
         if inp.lower() == 'release':
             return self.release
         if inp.lower() == 'default':
@@ -127,30 +127,32 @@ class ApplicationMode:
             return self.test
 
 
-
 class ApplicationContext:
     def __init__(self, applicationContextPath: str, applicationMode=ApplicationMode.default):
-        parser = argparse.ArgumentParser(description='示例程序参数解析')
-        parser.add_argument('--runMode', help='The mode of pybean', type=str, default="default")
-        args = parser.parse_args()
+
+        applicationContextPath = os.path.abspath(applicationContextPath)
+        self.dirPath = os.path.dirname(applicationContextPath)
 
         self.tree = None
         self.root = None
         self.pointer = None
         self.depth = None
         self.__scanDiction = None
+        self.childApplications = []
 
-        self.__mode = ApplicationMode().parse_mode(args.runMode)
-        if applicationMode != self.__mode:
-            self.__mode = applicationMode
+        self.__mode = applicationMode
 
         self.path = applicationContextPath
         self.reloadFromfile()
         self.refresh()  # Init
+        self.__doImportLoadList()
+
+    def set__mode(self, mode: ApplicationMode):
+        self.__mode = mode
 
     def debug_print(self, *args, **kwargs):
         if self.__mode in (ApplicationMode.debug, ApplicationMode.test, ApplicationMode.development):
-            print("Debug-Print -> ", end='')
+            print(self.path.split('\\')[-1] + " -> ", end='')
             print(*args, **kwargs)
 
     def pointerLength(self) -> int:
@@ -175,7 +177,7 @@ class ApplicationContext:
     def refresh(self):
         self.debug_print('refresh')
         self.__scanDiction: Dict[int, List[ElementLoader]] = self.__scan()
-    
+
     def __scan(self) -> Dict[int, List[ElementLoader]]:
         layer = {}
         rootElementLoader = ElementLoader(self.pointer)
@@ -201,12 +203,33 @@ class ApplicationContext:
     def getScanDiction(self) -> Dict[int, List[ElementLoader]]:
         return self.__scanDiction
 
+    def __getLoaderList(self, depth: int, tagName: str) -> List[ElementLoader]:
+        li = []
+        if depth in self.getScanDiction():
+            for elementLoader in self.getScanDiction()[depth]:
+                if elementLoader.element.tag == tagName:
+                    li.append(elementLoader)
+        return li
+
+    def getImportLoadList(self) -> List[ElementLoader]:
+        return self.__getLoaderList(depth=0, tagName='import')
+
+    def __doImportLoadList(self):
+        for loader in self.getImportLoadList():
+            element = loader.element
+
+            resource = getAttributeFromElement(element, 'resource')
+            readyPath = self.dirPath + "\\" + resource
+            if not os.path.exists(readyPath):
+                readyPath = resource
+            childApplication = ApplicationContext(applicationContextPath=readyPath, applicationMode=self.__mode)
+            self.childApplications.append(childApplication)
+
     def getBeanLoaderList(self) -> List[ElementLoader]:
         li = []
-        if 0 in self.getScanDiction():
-            for elementLoader in self.getScanDiction()[0]:
-                if elementLoader.element.tag == "bean":
-                    li.append(elementLoader)
+        for childApplication in self.childApplications:
+            li.extend(childApplication.getBeanLoaderList())
+        li.extend(self.__getLoaderList(depth=0, tagName="bean"))
         return li
 
     def buildBean(self, loader: ElementLoader):
@@ -260,21 +283,36 @@ class ApplicationContext:
 
         return bean
 
-    def getBean(self, arg) -> object:
-        if self.__mode == ApplicationMode.development:
-            self.reloadFromfile()
-            self.refresh()
-        li = []
-        beanELoader = None
-        for beanELoader in self.getBeanLoaderList():
-            if arg in beanELoader.element.attrib.values():
-                li.append(self.buildBean(beanELoader))
-        if len(li) > 1:
-            for bean in li:
-                if bean.attrib['id'] == arg:
-                    return bean.instance
-            raise KeyError("Too many results -> " + str(li))
-        elif len(li) == 0:
-            raise KeyError("Result not found")
+    def getBean(self, id, requiredType: Type = Default) -> object:
+        def inner():
+            if self.__mode == ApplicationMode.development:
+                self.reloadFromfile()
+                self.refresh()
+            li = []
+            beanELoader = None
+            for beanELoader in self.getBeanLoaderList():
+                if id in beanELoader.element.attrib.values():
+                    li.append(self.buildBean(beanELoader))
+            if len(li) > 1:
+                for bean in li:
+                    if bean.attrib['id'] == id:
+                        return bean.instance
+                raise KeyError("Too many results -> " + str(li))
+            elif len(li) == 0:
+                raise KeyError(f"Result '{id}' not found")
+            return li[0].instance
 
-        return li[0].instance
+        b = inner()
+        errorInBed = SystemError(f"Object {b.__class__} in {self.path} \n which bean id:'{id}' maybe is not a {requiredType} object")
+        try:
+            if requiredType == Default or b.__class__ == requiredType:
+                return b
+            instanceName = str(b.__class__).split("'")[1]
+            requiredName = str(requiredType).split("'")[1]
+            if (instanceName in requiredName) or (requiredName in instanceName):
+                raise NameError(
+                    f"The class name of bean id:'{id}' \n in {self.path} is not clear enough, did you mean: '{requiredType}'?")
+        except Exception as e:
+            raise errorInBed
+
+        raise errorInBed

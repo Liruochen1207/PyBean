@@ -1,17 +1,14 @@
 from typing import List
 
 from PyBean.ioc import ApplicationContext, ApplicationMode, ElementLoader
+
 from test.imp.bookImp import *
 
-if __name__ == '__main__':
-    actx = ApplicationContext('resource/applicationContext.xml')
-    elementLoaderList: List[ElementLoader] = actx.getScanDiction()[0]
-    for elementLoader in elementLoaderList:
-        bean = actx.buildBean(elementLoader)
-        for prop in bean.get_properties():
-            print(prop.name, prop.value)
-
-    print(actx.getBean("payImp85").discount)
+def main():
+    actx = ApplicationContext('resource/applicationContext.xml',
+                              applicationMode=ApplicationMode.default)
+    # actx.set__mode(ApplicationMode.development)
+    print(actx.getBean("bookImp2", requiredType=BookDaoImp))
     print(type(actx.getBean("payImp85").discount))
     bookDaoImp: Bookdao = actx.getBean("bookImp")
     bookDaoImp2: Bookdao = actx.getBean("bookImp2")
@@ -21,3 +18,8 @@ if __name__ == '__main__':
     print(actx.getBean("bookImp").brotherImp)
     print(actx.getBean("bookImp2"))
 
+    print("-" * 50)
+    print(actx.getBeanLoaderList()[0].element.attrib)
+
+if __name__ == '__main__':
+    main()

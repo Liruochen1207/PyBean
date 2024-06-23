@@ -1,10 +1,9 @@
 
-<div class="moduleTitle" align="center">
 
 # PyBean
-</div>
 
-<br></br>
+
+
 ## 1. What is this?
 This is a Python module implementation of IOC container management.
 
@@ -74,7 +73,7 @@ In your python file:
 ```
 # main.py
 
-from PyBean.ioc import ApplicationContext
+from PyBean.ioc import ApplicationContext, ApplicationMode
 
 
 if __name__ == '__main__':
@@ -92,15 +91,26 @@ or
 ```shell
 python3 main.py
 ```
-<br>
+
 > Hey Lee! China is a good place!
 
 
+You can turn on development mode to ensure that each getBean operation will re-read the latest content in the XML.
+```
+actx = ApplicationContext('resource/applicationContext.xml', 
+applicationMode=ApplicationMode.development)
+```
+or
+```
+actx.set__mode(ApplicationMode.development)
+```
 
-<br></br>
-<br></br>
-<br></br>
-<br></br>
+You can add a second type parameter to getBean to constrain the obtained object to belong to that type. Of course, make sure that the type name in your XML is an absolute class path.
+```
+from dao.person import PersonDao
+personGet = actx.getBean("me", requiredType=PersonDao)
+```
+
 #### website: https://space.bilibili.com/178065252
 #### pypi: https://pypi.org/project/pyBean/
 #### repository: https://github.com/Liruochen1207/PyBean
